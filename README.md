@@ -1,1 +1,1 @@
-# rag-search-chats
+# rag-search-guide
