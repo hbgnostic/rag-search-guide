@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building a RAG-Based Search System for Chat Histories</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #3498db;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            margin: 30px 0;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .step-container {
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f8f8f8;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .highlight {
+            background-color: #f1c40f30;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .nav {
+            position: sticky;
+            top: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .nav a {
+            margin-right: 15px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Building a RAG-Based Search System for Chat Histories</h1>
+    </header>
+    
+    <div class="nav">
+        <a href="#overview">Overview</a>
+        <a href="#why">Why It's Useful</a>
+        <a href="#visualization">How It Works</a>
+        <a href="#steps">Implementation Steps</a>
+        <a href="#technical">Technical Details</a>
+    </div>
+
+    <div class="video-container">
+        <!-- Replace with your actual YouTube embed code -->
+        <iframe src="https://www.youtube.com/embed/your-video-id" title="RAG Search System Tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <section id="overview">
+        <h2>Overview</h2>
+        <p>
+            This guide walks you through the process of building a Retrieval-Augmented Generation (RAG) based search system for querying and summarizing your past ChatGPT and Claude conversations. It leverages vector embeddings, FAISS for efficient similarity search, and OpenAI's API to provide insights from past conversations.
+        </p>
+        <p>
+            The goal of this project is to create a system that allows you to search through your ChatGPT and Claude conversations efficiently, retrieve relevant information, and even generate summaries of your past interactions.
+        </p>
+    </section>
+
+    <section id="why">
+        <h2>Why This is Useful</h2>
+        <p>
+            Traditionally, searching within the native chat apps (like ChatGPT or Claude) provides a basic search capability. However, this is limited when it comes to:
+        </p>
+        <ul>
+            <li><strong>Contextual Relevance</strong>: Searching can pull up a lot of results, but it doesn't always consider the context or what's truly relevant.</li>
+            <li><strong>Summarization</strong>: If you have long conversations, these apps don't summarize or extract the key points in an easy-to-digest way.</li>
+            <li><strong>Scalability</strong>: If you have thousands of conversations, traditional search becomes less effective.</li>
+        </ul>
+        <p>
+            With this RAG-based approach, you can index all your past conversations and enhance your search capabilities by retrieving the most contextually relevant results, allowing for automated summarization and more sophisticated querying.
+        </p>
+    </section>
+
+    <section id="visualization">
+        <h2>How RAG Search Works</h2>
+        
+        <div class="step-container">
+            <h3>Step 1: Query Input & Processing</h3>
+            <img src="src/assets/1.-query-input.png" alt="Query Input and Processing">
+            <p>When a user submits a query, it's extracted and sent to the query engine for processing.</p>
+        </div>
+        
+        <div class="step-container">
+            <h3>Step 2: Query Vectorization</h3>
+            <img src="src/assets/2.-query-vectorization.png" alt="Query Vectorization">
+            <p>The text query is transformed into a numerical vector representation using OpenAI's embedding model.</p>
+        </div>
+        
+        <div class="step-container">
+            <h3>Step 3: Vector Similarity Search</h3>
+            <img src="src/assets/3.-vector-similarity-search.png" alt="Vector Similarity Search">
+            <p>FAISS compares the query vector to all document vectors to find the most similar documents.</p>
+        </div>
+        
+        <div class="step-container">
+            <h3>Step 4: Document Retrieval</h3>
+            <img src="src/assets/4.-document-retrieval.png" alt="Document Retrieval">
+            <p>The most relevant documents are retrieved from storage based on their similarity scores.</p>
+        </div>
+        
+        <div class="step-container">
+            <h3>Step 5: Response Generation</h3>
+            <img src="src/assets/5.-response-generation.png" alt="Response Generation">
+            <p>Retrieved documents are used by OpenAI's GPT model to generate a human-readable answer with source citations.</p>
+        </div>
+    </section>
+
+    <section id="steps">
+        <h2>Implementation Steps</h2>
+        
+        <h3>Step 1: Prepare Your Environment</h3>
+        <pre><code># Create a virtual environment
+python3 -m venv venv
+
+# Activate the environment
+source venv/bin/activate  # On macOS/Linux
+venv\Scripts\activate  # On Windows
+
+# Install required libraries
+pip install openai flask faiss-cpu llama-index python-dotenv</code></pre>
+        
+        <h3>Step 2: Get Your Conversation Data</h3>
+        <ul>
+            <li>Export your ChatGPT conversations from Settings → Data Controls</li>
+            <li>Similarly export your Claude conversations if you use that platform</li>
+            <li>Place the exported JSON files in your project directory</li>
+        </ul>
+        
+        <h3>Step 3: Process and Index the Conversations</h3>
+        <p>Create and run the indexing script to process your conversations and create vector embeddings:</p>
+        <pre><code>python index_chats.py</code></pre>
+        
+        <h3>Step 4: Start the Web Interface</h3>
+        <pre><code># Set your OpenAI API key
+export OPENAI_API_KEY="your-api-key"  # On macOS/Linux
+set OPENAI_API_KEY=your-api-key  # On Windows
+
+# Run the Flask application
+python app.py</code></pre>
+        
+        <h3>Step 5: Access Your Search System</h3>
+        <p>Open your browser and navigate to: <code>http://127.0.0.1:5000/</code></p>
+    </section>
+
+    <section id="technical">
+        <h2>Technical Breakdown</h2>
+        
+        <div class="highlight">
+            <h3>RAG (Retrieval-Augmented Generation)</h3>
+            <p>Instead of relying solely on a generative model to answer questions, we first retrieve relevant information (in the form of conversation excerpts) and then generate answers by combining this retrieved data with the query. This allows for more contextually aware responses.</p>
+        </div>
+        
+        <div class="highlight">
+            <h3>FAISS</h3>
+            <p>FAISS is an efficient library for similarity search (created by Facebook engineers). It enables us to store and search large collections of vectors quickly. We use FAISS to index all the vectors of your past conversations so that when you ask a question, we can find the most relevant conversation excerpts fast.</p>
+        </div>
+        
+        <div class="highlight">
+            <h3>OpenAI Embeddings</h3>
+            <p>OpenAI's embeddings API converts your conversation and query text into vectors (high-dimensional numerical representations). These embeddings are what allow you to search for similar conversations, even when the exact words don't match.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>For the full implementation code and more details, check out the <a href="https://github.com/yourusername/rag-search-guide">GitHub repository</a>.</p>
+        <p>Created by Bridget Doran © 2025</p>
+    </footer>
+</body>
+</html>
