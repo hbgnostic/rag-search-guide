@@ -9,7 +9,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -21,6 +21,8 @@
         h2 {
             color: #2980b9;
             margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
         }
         h3 {
             color: #3498db;
@@ -57,6 +59,7 @@
             border-radius: 4px;
             padding: 15px;
             overflow-x: auto;
+            font-size: 14px;
         }
         code {
             font-family: 'Courier New', Courier, monospace;
@@ -78,6 +81,7 @@
             border-radius: 4px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+            z-index: 100;
         }
         .nav a {
             margin-right: 15px;
@@ -86,6 +90,65 @@
         }
         .nav a:hover {
             text-decoration: underline;
+        }
+        .file-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px 4px 0 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 0;
+        }
+        .code-container {
+            margin-bottom: 30px;
+        }
+        .code-container pre {
+            margin-top: 0;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+        .note {
+            background-color: #3498db20;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #e74c3c20;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .tab-container {
+            margin: 20px 0;
+        }
+        .tab-buttons {
+            display: flex;
+            overflow-x: auto;
+        }
+        .tab-button {
+            padding: 10px 15px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab-button.active {
+            background-color: #ffffff;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #ffffff;
+        }
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -99,6 +162,7 @@
         <a href="#why">Why It's Useful</a>
         <a href="#visualization">How It Works</a>
         <a href="#steps">Implementation Steps</a>
+        <a href="#code">Code Files</a>
         <a href="#technical">Technical Details</a>
     </div>
 
@@ -137,31 +201,31 @@
         
         <div class="step-container">
             <h3>Step 1: Query Input & Processing</h3>
-            <img src="src/assets/1.-query-input.png" alt="Query Input and Processing">
+            <img src="src/assets/1-query-input.png" alt="Query Input and Processing">
             <p>When a user submits a query, it's extracted and sent to the query engine for processing.</p>
         </div>
         
         <div class="step-container">
             <h3>Step 2: Query Vectorization</h3>
-            <img src="src/assets/2.-query-vectorization.png" alt="Query Vectorization">
+            <img src="src/assets/2-query-vectorization.png" alt="Query Vectorization">
             <p>The text query is transformed into a numerical vector representation using OpenAI's embedding model.</p>
         </div>
         
         <div class="step-container">
             <h3>Step 3: Vector Similarity Search</h3>
-            <img src="src/assets/3.-vector-similarity-search.png" alt="Vector Similarity Search">
+            <img src="src/assets/3-vector-similarity-search.png" alt="Vector Similarity Search">
             <p>FAISS compares the query vector to all document vectors to find the most similar documents.</p>
         </div>
         
         <div class="step-container">
             <h3>Step 4: Document Retrieval</h3>
-            <img src="src/assets/4.-document-retrieval.png" alt="Document Retrieval">
+            <img src="src/assets/4-document-retrieval.png" alt="Document Retrieval">
             <p>The most relevant documents are retrieved from storage based on their similarity scores.</p>
         </div>
         
         <div class="step-container">
             <h3>Step 5: Response Generation</h3>
-            <img src="src/assets/5.-response-generation.png" alt="Response Generation">
+            <img src="src/assets/5-response-generation.png" alt="Response Generation">
             <p>Retrieved documents are used by OpenAI's GPT model to generate a human-readable answer with source citations.</p>
         </div>
     </section>
@@ -170,6 +234,9 @@
         <h2>Implementation Steps</h2>
         
         <h3>Step 1: Prepare Your Environment</h3>
+        <div class="note">
+            <p><strong>Important:</strong> This guide was created using macOS. Windows commands may differ slightly.</p>
+        </div>
         <pre><code># Create a virtual environment
 python3 -m venv venv
 
@@ -184,15 +251,38 @@ pip install openai flask faiss-cpu llama-index python-dotenv</code></pre>
         <ul>
             <li>Export your ChatGPT conversations from Settings → Data Controls</li>
             <li>Similarly export your Claude conversations if you use that platform</li>
-            <li>Place the exported JSON files in your project directory</li>
+            <li>Place the exported JSON files in your project directory as:</li>
+            <ul>
+                <li><code>conversations.json</code> (for ChatGPT)</li>
+                <li><code>claude_conversations.json</code> (for Claude)</li>
+            </ul>
         </ul>
         
         <h3>Step 3: Process and Index the Conversations</h3>
-        <p>Create and run the indexing script to process your conversations and create vector embeddings:</p>
-        <pre><code>python index_chats.py</code></pre>
+        <p>Create the project structure as follows:</p>
+        <pre><code>/your-project-directory
+├── app.py                 # Your Flask application
+├── index_chats.py         # Script for processing and indexing chat data
+├── templates/
+│   └── index.html         # HTML file that Flask will render
+├── venv/                  # Virtual environment
+├── conversations.json     # Your exported ChatGPT data
+└── claude_conversations.json  # Your exported Claude data (if applicable)</code></pre>
+        
+        <p>Run the indexing script to process your conversations and create vector embeddings:</p>
+        <pre><code># Set your OpenAI API key
+export OPENAI_API_KEY="your-api-key"  # On macOS/Linux
+set OPENAI_API_KEY=your-api-key  # On Windows
+
+# Run the indexing script
+python index_chats.py</code></pre>
+        
+        <div class="note">
+            <p>This will create the necessary index files including <code>faiss.index</code> and a <code>chat_index/</code> directory.</p>
+        </div>
         
         <h3>Step 4: Start the Web Interface</h3>
-        <pre><code># Set your OpenAI API key
+        <pre><code># Make sure your OpenAI API key is set
 export OPENAI_API_KEY="your-api-key"  # On macOS/Linux
 set OPENAI_API_KEY=your-api-key  # On Windows
 
@@ -201,30 +291,497 @@ python app.py</code></pre>
         
         <h3>Step 5: Access Your Search System</h3>
         <p>Open your browser and navigate to: <code>http://127.0.0.1:5000/</code></p>
-    </section>
-
-    <section id="technical">
-        <h2>Technical Breakdown</h2>
+        <p>You should see the chat interface where you can search and interact with your indexed conversations.</p>
         
-        <div class="highlight">
-            <h3>RAG (Retrieval-Augmented Generation)</h3>
-            <p>Instead of relying solely on a generative model to answer questions, we first retrieve relevant information (in the form of conversation excerpts) and then generate answers by combining this retrieved data with the query. This allows for more contextually aware responses.</p>
-        </div>
-        
-        <div class="highlight">
-            <h3>FAISS</h3>
-            <p>FAISS is an efficient library for similarity search (created by Facebook engineers). It enables us to store and search large collections of vectors quickly. We use FAISS to index all the vectors of your past conversations so that when you ask a question, we can find the most relevant conversation excerpts fast.</p>
-        </div>
-        
-        <div class="highlight">
-            <h3>OpenAI Embeddings</h3>
-            <p>OpenAI's embeddings API converts your conversation and query text into vectors (high-dimensional numerical representations). These embeddings are what allow you to search for similar conversations, even when the exact words don't match.</p>
+        <div class="warning">
+            <p><strong>Security Note:</strong> This is an experimental local application. Your API key is sent to OpenAI over HTTPS. For better security in a production environment, you would use environment variables or a secure credential manager.</p>
         </div>
     </section>
 
-    <footer>
-        <p>For the full implementation code and more details, check out the <a href="https://github.com/yourusername/rag-search-guide">GitHub repository</a>.</p>
-        <p>Created by Bridget Doran © 2025</p>
-    </footer>
-</body>
-</html>
+    <section id="code">
+        <h2>Code Files</h2>
+        <p>Here are the three essential files needed for this project:</p>
+        
+        <div class="code-container">
+            <div class="file-header">index_chats.py</div>
+            <pre><code>import os
+import json
+import faiss
+from typing import List, Dict, Any
+from datetime import datetime
+from llama_index.core import Document, SimpleDirectoryReader, VectorStoreIndex, StorageContext
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.vector_stores.faiss import FaissVectorStore
+from llama_index.embeddings.openai import OpenAIEmbedding
+
+def format_timestamp(ts):
+    """Format timestamp to a clean ISO format."""
+    if not ts:
+        return "unknown"
+    try:
+        if isinstance(ts, (int, float)):
+            # Convert UNIX timestamp
+            dt = datetime.fromtimestamp(ts)
+            return dt.isoformat() + "Z"
+        return ts.split("Z")[0] + "Z"  # Clean ISO format
+    except Exception:
+        return "unknown"
+
+def safe_text(item):
+    """Extract text safely from various content types."""
+    if isinstance(item, str):
+        return item.strip()
+    if isinstance(item, dict):
+        if item.get("type") == "text":
+            return item.get("text", "").strip()
+        if item.get("type") == "image":
+            return f"[uploaded image]"
+        if item.get("type") == "file":
+            file_name = item.get("name", item.get("title", "unknown file"))
+            return f"[uploaded file: {file_name}]"
+    return "[non-text content]"
+
+def parse_openai() -> List[Dict[str, Any]]:
+    """Parse OpenAI/ChatGPT conversations into structured format."""
+    conversations = []
+    
+    with open("conversations.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    for conv_data in data:
+        conversation_id = conv_data.get("id", "unknown")
+        title = conv_data.get("title", "Untitled Conversation")
+        create_time = format_timestamp(conv_data.get("create_time", ""))
+        
+        # Sort messages by timestamp to maintain conversation flow
+        messages = []
+        for node in conv_data.get("mapping", {}).values():
+            msg = node.get("message")
+            if not msg:
+                continue
+                
+            role = msg.get("author", {}).get("role", "unknown")
+            ts = msg.get("create_time") or msg.get("update_time") or ""
+            timestamp = format_timestamp(str(ts))
+            
+            parts = msg.get("content", {}).get("parts", [])
+            if parts:
+                content = safe_text(parts[0])
+                if content:
+                    messages.append({
+                        "role": role,
+                        "timestamp": timestamp,
+                        "content": content
+                    })
+        
+        # Sort messages by timestamp
+        messages.sort(key=lambda x: x["timestamp"])
+        
+        conversations.append({
+            "id": conversation_id,
+            "title": title,
+            "create_time": create_time,
+            "source": "openai",
+            "messages": messages
+        })
+    
+    return conversations
+
+def parse_claude() -> List[Dict[str, Any]]:
+    """Parse Claude conversations into structured format."""
+    with open("claude_conversations.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    conversations = []
+    
+    # Each item in the JSON is a conversation
+    for conv in data:
+        conv_id = conv.get("uuid", "unknown")
+        title = conv.get("name") or f"Claude Conversation {conv_id[:8]}"
+        create_time = format_timestamp(conv.get("created_at", ""))
+        
+        # Extract messages from this conversation
+        messages = []
+        for msg in conv.get("chat_messages", []):
+            sender = msg.get("sender", "unknown")
+            role = "user" if sender == "human" else "assistant"
+            ts = msg.get("created_at") or msg.get("updated_at") or ""
+            timestamp = format_timestamp(ts)
+            
+            # Extract text content
+            content_parts = []
+            for part in msg.get("content", []):
+                if part.get("type") == "text":
+                    text = part.get("text", "").strip()
+                    if text:
+                        content_parts.append(text)
+                elif part.get("type") in ["image", "file"]:
+                    file_name = part.get("name", "unknown")
+                    content_parts.append(f"[{part.get('type')}: {file_name}]")
+            
+            content = "\n".join(content_parts)
+            if content:
+                messages.append({
+                    "role": role,
+                    "timestamp": timestamp,
+                    "content": content
+                })
+        
+        # Only add conversations with actual messages
+        if messages:
+            conversations.append({
+                "id": conv_id,
+                "title": title,
+                "create_time": create_time,
+                "source": "claude",
+                "messages": messages
+            })
+    
+    return conversations
+
+def create_documents_from_conversations(conversations: List[Dict[str, Any]]) -> List[Document]:
+    """Convert conversations into LlamaIndex Documents with proper metadata."""
+    documents = []
+    
+    for conv in conversations:
+        # Skip empty conversations
+        if not conv.get("messages"):
+            continue
+            
+        # Combine messages into a single conversation document
+        conversation_text = f"Title: {conv['title']}\nSource: {conv['source']}\nDate: {conv['create_time']}\n\n"
+        
+        # Add messages with proper formatting
+        for msg in conv["messages"]:
+            # Skip empty messages
+            if not msg.get("content"):
+                continue
+                
+            role_name = "You" if msg["role"] == "user" else conv["source"].capitalize()
+            content = msg["content"].strip()
+            
+            # Skip truly empty content after stripping
+            if not content:
+                continue
+                
+            conversation_text += f"{role_name} [{msg['timestamp']}]: {content}\n\n"
+        
+        # Skip if after processing there's no real content
+        if len(conversation_text.strip()) <= 50:  # Arbitrary minimum length
+            continue
+        
+        # Create document with metadata
+        doc = Document(
+            text=conversation_text,
+            metadata={
+                "conversation_id": conv["id"],
+                "title": conv["title"],
+                "source": conv["source"],
+                "create_time": conv["create_time"],
+                "message_count": len(conv["messages"])
+            }
+        )
+        documents.append(doc)
+    
+    return documents
+
+def main():
+    print("📚 Loading and parsing conversation data...")
+    # Collect conversations from both sources
+    openai_conversations = []
+    claude_conversations = []
+    
+    try:
+        if os.path.exists("conversations.json"):
+            openai_conversations = parse_openai()
+            print(f"Found {len(openai_conversations)} OpenAI conversations")
+        else:
+            print("Warning: conversations.json file not found, skipping OpenAI conversations")
+    except Exception as e:
+        print(f"Error parsing OpenAI conversations: {e}")
+    
+    try:
+        if os.path.exists("claude_conversations.json"):
+            claude_conversations = parse_claude()
+            print(f"Found {len(claude_conversations)} Claude conversations")
+        else:
+            print("Warning: claude_conversations.json file not found, skipping Claude conversations")
+    except Exception as e:
+        print(f"Error parsing Claude conversations: {e}")
+    
+    all_conversations = openai_conversations + claude_conversations
+    
+    # Create documents from conversations
+    documents = create_documents_from_conversations(all_conversations)
+    
+    print(f"Created {len(documents)} conversation documents")
+    
+    # Create output directory
+    os.makedirs("chat_data", exist_ok=True)
+    
+    # Use SentenceSplitter for better chunking
+    splitter = SentenceSplitter(
+        chunk_size=512,
+        chunk_overlap=50,
+        paragraph_separator="\n\n",
+        secondary_chunking_regex="[.!?]\\s+", 
+    )
+    
+    # Set up embedding model
+    embed_model = OpenAIEmbedding(
+        model="text-embedding-ada-002",
+        embed_batch_size=100
+    )
+    
+    # Build vector index with improved parameters
+    print("🔍 Building vector index...")
+    
+    # Check if we have any documents to index
+    if not documents:
+        print("No valid conversations found to index. Please check your input files.")
+        return
+    
+    nodes = splitter.get_nodes_from_documents(documents)
+    
+    print(f"Created {len(nodes)} nodes from {len(documents)} conversation documents")
+    
+    # Use FAISS with cosine similarity (inner product)
+    dimension = 1536  # Dimension for text-embedding-ada-002
+    faiss_index = faiss.IndexFlatIP(dimension)
+    vector_store = FaissVectorStore(faiss_index=faiss_index)
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    
+    print(f"Indexing {len(nodes)} conversation chunks...")
+    
+    # Set up progress tracking
+    total_nodes = len(nodes)
+    
+    try:
+        index = VectorStoreIndex(
+            nodes, 
+            storage_context=storage_context,
+            embed_model=embed_model
+        )
+        print(f"Successfully indexed all {total_nodes} conversation chunks")
+    except Exception as e:
+        print(f"Error during indexing: {e}")
+        print("Attempting to continue with any successfully indexed chunks...")
+    
+    # Save the index
+    print("💾 Saving index...")
+    faiss.write_index(faiss_index, "faiss.index")
+    index.storage_context.persist(persist_dir="chat_index")
+    
+    # Write conversation summaries for reference
+    with open("conversation_summary.txt", "w", encoding="utf-8") as f:
+        for i, conv in enumerate(all_conversations):
+            f.write(f"Conversation {i+1}: {conv['title']}\n")
+            f.write(f"Source: {conv['source']}\n")
+            f.write(f"ID: {conv['id']}\n")
+            f.write(f"Messages: {len(conv['messages'])}\n")
+            f.write(f"Created: {conv['create_time']}\n")
+            f.write("="*50 + "\n\n")
+    
+    print(f"✅ Successfully indexed {len(documents)} conversations with {sum(len(c['messages']) for c in all_conversations)} total messages.")
+
+if __name__ == "__main__":
+    main()</code></pre>
+        </div>
+        
+        <div class="code-container">
+            <div class="file-header">app.py</div>
+            <pre><code>from flask import Flask, render_template, request, jsonify
+import os
+import json
+from datetime import datetime
+from llama_index.core import StorageContext, load_index_from_storage
+from llama_index.vector_stores.faiss import FaissVectorStore
+
+app = Flask(__name__)
+
+# Load the index only once when the application starts
+print("Loading vector index...")
+vector_store = FaissVectorStore.from_persist_dir("chat_index")
+storage_context = StorageContext.from_defaults(
+    persist_dir="chat_index",
+    vector_store=vector_store
+)
+index = load_index_from_storage(storage_context)
+query_engine = index.as_query_engine(similarity_top_k=5)
+print("Index loaded successfully!")
+
+# Create a directory for saving conversations
+os.makedirs("saved_conversations", exist_ok=True)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/query', methods=['POST'])
+def query():
+    user_query = request.json.get('query', '')
+    
+    if not user_query:
+        return jsonify({'error': 'No query provided'}), 400
+    
+    # Query the index
+    response = query_engine.query(user_query)
+    
+    # Extract source nodes
+    sources = []
+    for i, node in enumerate(response.source_nodes):
+        source = {
+            'id': i + 1,
+            'score': round(node.score, 4),
+            'text': node.node.text[:500] + "..." if len(node.node.text) > 500 else node.node.text
+        }
+        
+        # Extract metadata
+        metadata = node.node.metadata
+        if metadata:
+            source['title'] = metadata.get('title', 'Unknown')
+            source['source'] = metadata.get('source', 'Unknown')
+        
+        sources.append(source)
+    
+    return jsonify({
+        'answer': str(response),
+        'sources': sources
+    })
+
+@app.route('/save', methods=['POST'])
+def save_conversation():
+    conversation = request.json.get('conversation', [])
+    
+    if not conversation:
+        return jsonify({'error': 'No conversation to save'}), 400
+    
+    # Generate a filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"saved_conversations/conversation_{timestamp}.json"
+    
+    # Save the conversation
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(conversation, f, indent=2)
+    
+    return jsonify({'success': True, 'filename': filename})
+
+@app.route('/list_saved', methods=['GET'])
+def list_saved():
+    files = os.listdir("saved_conversations")
+    files = [f for f in files if f.endswith('.json')]
+    files.sort(reverse=True)  # Most recent first
+    
+    return jsonify({'files': files})
+
+@app.route('/load_saved/<filename>', methods=['GET'])
+def load_saved(filename):
+    filepath = os.path.join("saved_conversations", filename)
+    
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'File not found'}), 404
+    
+    with open(filepath, 'r', encoding='utf-8') as f:
+        conversation = json.load(f)
+    
+    return jsonify({'conversation': conversation})
+
+if __name__ == '__main__':
+    app.run(debug=True)</code></pre>
+        </div>
+        
+        <div class="code-container">
+            <div class="file-header">templates/index.html</div>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Personal Chat History Explorer&lt;/title&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;style&gt;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #6c757d;
+            color: white;
+            padding: 15px;
+        }
+        .chat-messages {
+            height: 500px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        .assistant-message {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+        .input-area {
+            padding: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        .source-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .source-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background: white;
+        }
+        .controls-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .saved-conversations {
+            margin-top: 20px;
+            display: none;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1 class="text-center mb-4"&gt;Personal Chat History Explorer&lt;/h1&gt;
+        
+        &lt;div class="chat-container"&gt;
+            &lt;div class="chat-header"&gt;
+                &lt;h4&gt;Chat with Your Personal AI&lt;/h4&gt;
+            &lt;/div&gt;
+            &lt;div class="chat-messages" id="chatMessages"&gt;
+                &lt;div class="message assistant-message"&gt;
+                    Welcome to your Personal Chat History Explorer! Ask me anything about your previous conversations with ChatGPT and Claude.
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class="input-area"&gt;
+                &lt;div class="input-group"&gt;
+                    &lt;input type="text" id="userInput" class="form-control" placeholder="Ask something about your chat history..."&gt;
+                    &lt;button class="btn btn-primary" id="sendButton"&gt;Send&lt;/button&gt;
+                &lt;/div&gt;
